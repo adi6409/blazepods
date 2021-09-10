@@ -2,6 +2,7 @@ from bleak import BleakClient
 from tkinter import *
 import time
 import asyncio
+import threading
 address = "C5:02:0A:BD:EF:E3"
 touchuuid = "50c9727e-4cb8-4c84-b745-0e58a0280cd6"
 sheeesh = 1
@@ -57,24 +58,21 @@ class StopWatch(Frame):
         self._setTime(self._elapsedtime)
         
         
-def main():
-    root = Tk()
-    sw = StopWatch(root)
-    sw.pack(side=TOP)
-    Button(root, text='Start', command=sw.Start).pack(side=LEFT)
-    Button(root, text='Stop', command=sw.Stop).pack(side=LEFT)
-    Button(root, text='Reset', command=sw.Reset).pack(side=LEFT)
-    Button(root, text='Quit', command=root.quit).pack(side=LEFT)
 
-    root.mainloop()
 
 
 async def run(address):
     async with BleakClient(address) as client:
-        while sheeesh > 0:
-            model_number = await client.read_gatt_char(touchuuid)
+        root = Tk()
+        sw = StopWatch(root)
+        model_number = await client.read_gatt_char(touchuuid)
+
+        def task():
+            sw.pack(side=TOP)
             pressedfile = open("pressed.txt","rb")
             pressedvalue = pressedfile.read()
+            ststf = open("stst.txt","r")
+            ststr = ststf.read()
             if model_number != pressedvalue:
                 pressedwrite = open("pressed.txt","w")
                 pressedwrite.close()
@@ -82,17 +80,25 @@ async def run(address):
                 writebytes = open("pressed.txt","wb")
                 writebytes.write(model_number)
                 print(model_number)
-                if sheeesh==1 :
-                    sw.Start
-                    sheeesh = sheeesh + 1
-                else:
-                    sw.Stop
-                    sheeesh = sheeesh - 1
+                if ststr == "1" :
+                    ststf.close()
+                    ststw = open('stst.txt',"w")
+                    ststw.write("2")
+                    ststw.close
+                    sw.Start()
+                elif ststr == "2":
+                    print("strstr is 2")
+                    ststf.close()
+                    ststw = open('stst.txt',"w")
+                    ststw.write("1")
+                    ststw.close
+                    sw.Stop()
                 writebytes.close()
+        root.after(500, task)
+        root.mainloop()            
 
-def looping():
+
+
+if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run(address))
-if __name__ == '__main__':
-    looping()
-    main()
