@@ -1,7 +1,7 @@
 import asyncio
 from bleak import BleakClient
 
-address = "F0:A9:85:92:21:CE"
+address = "C5:02:0A:BD:EF:E3"
 MODEL_NBR_UUID = "00002a24-0000-1000-8000-00805f9b34fb"
 
 async def run(address):
